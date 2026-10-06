@@ -1,0 +1,43 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment variables / API keys
+.env
+.env.*
+!.env.example
+
+# Python tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Chroma vector database
+chroma_store/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# React / Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Cursor / IDE settings
+.cursor/
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log

@@ -1,0 +1,278 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 20px;
+
+  background:
+    radial-gradient(circle at top left, #e5f4ff 0%, transparent 35%),
+    linear-gradient(135deg, #f7faff 0%, #eef4fb 100%);
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 900px;
+  height: 720px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+  border: 1px solid #dce5f0;
+  border-radius: 20px;
+
+  box-shadow: 0 20px 45px rgba(31, 50, 81, 0.12);
+
+  overflow: hidden;
+}
+
+/* Header */
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 22px 26px;
+
+  background: linear-gradient(135deg, #0b5cab, #087f8c);
+
+  color: white;
+}
+
+.brand-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.chat-header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* Messages */
+
+.chat-messages {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  padding: 28px;
+
+  overflow-y: auto;
+
+  background: #f8fafc;
+}
+
+.message-row {
+  display: flex;
+  width: 100%;
+}
+
+.message-row.assistant {
+  justify-content: flex-start;
+}
+
+.message-row.user {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 72%;
+
+  padding: 14px 17px;
+
+  border-radius: 16px;
+
+  line-height: 1.55;
+
+  box-shadow: 0 3px 10px rgba(32, 50, 75, 0.06);
+}
+
+.message-bubble.assistant {
+  background: #ffffff;
+
+  border: 1px solid #dce5f0;
+  border-top-left-radius: 5px;
+}
+
+.message-bubble.user {
+  background: #0b5cab;
+  color: white;
+
+  border-top-right-radius: 5px;
+}
+
+.message-role {
+  display: block;
+
+  margin-bottom: 5px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 0.02em;
+}
+
+.message-bubble.assistant .message-role {
+  color: #0b5cab;
+}
+
+.message-bubble.user .message-role {
+  color: #dcecff;
+}
+
+.message-bubble p {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* Input */
+
+.chat-input-area {
+  display: flex;
+  gap: 12px;
+
+  padding: 20px 24px;
+
+  border-top: 1px solid #dce5f0;
+
+  background: white;
+}
+
+.chat-input-area input {
+  flex: 1;
+
+  padding: 14px 16px;
+
+  border: 1px solid #cbd6e2;
+  border-radius: 12px;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.chat-input-area input:focus {
+  border-color: #0b5cab;
+
+  box-shadow: 0 0 0 3px rgba(11, 92, 171, 0.12);
+}
+
+.chat-input-area input::placeholder {
+  color: #8795a8;
+}
+
+.chat-input-area button {
+  padding: 0 24px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #0b5cab;
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+.chat-input-area button:hover {
+  background: #084d91;
+}
+
+.chat-input-area button:active {
+  transform: scale(0.97);
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .app {
+    padding: 0;
+  }
+
+  .chat-container {
+    height: 100vh;
+    max-width: none;
+    border-radius: 0;
+  }
+
+  .message-bubble {
+    max-width: 88%;
+  }
+
+  .chat-input-area {
+    padding: 14px;
+  }
+
+  .chat-input-area button {
+    padding: 0 18px;
+  }
+}
+
+/* Source citation badge */
+
+.source-badge {
+  display: inline-block;
+
+  margin-top: 12px;
+  padding: 5px 10px;
+
+  border-radius: 8px;
+
+  background: #e8f2ff;
+  color: #0b5cab;
+
+  border: 1px solid #c7def7;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Loading and disabled states */
+
+.loading-message {
+  opacity: 0.8;
+}
+
+.chat-input-area input:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
+.chat-input-area button:disabled {
+  background: #91a8c2;
+  cursor: not-allowed;
+  transform: none;
+}

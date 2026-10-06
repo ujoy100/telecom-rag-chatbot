@@ -1,0 +1,29 @@
+# Environment
+python-dotenv
+
+pandas
+# LangChain
+langchain
+langchain-core
+langchain-community
+langchain-groq
+langchain-chroma
+langchain-huggingface
+langchain-text-splitters
+
+# Vector database
+chromadb
+
+# PDF processing
+pypdf
+
+# Embeddings
+sentence-transformers
+
+# ML
+torch
+torchvision
+
+# FastAPI backend
+fastapi
+uvicorn[standard]

@@ -1,0 +1,2588 @@
+# Telecom RAG Chatbot — GitHub Portfolio Build Log
+
+This document records the step-by-step conversion of the working Telecom RAG Chatbot into a clean, interview-ready GitHub project with a Python/FastAPI backend and a React frontend.
+
+The original working project remains unchanged. All portfolio work is being done in a separate project folder.
+
+---
+
+# Project Goal
+
+Create a clean GitHub repository that demonstrates:
+
+- Retrieval-Augmented Generation (RAG)
+- LangChain orchestration
+- Chroma vector database
+- Hugging Face embeddings
+- Groq-hosted Qwen LLM
+- FAQ, resolved-ticket, and PDF knowledge sources
+- Source citations
+- Confidence-based fallback logic
+- Retrieval evaluation
+- FastAPI backend
+- React frontend
+- Git/GitHub project organization
+
+---
+
+# Step 1 — Create and Initialize the New Project ✅
+
+A separate project folder was created for the GitHub/interview version so the original working learning project remains untouched.
+
+## Create the project folder
+
+```bash
+mkdir telecom-rag-chatbot
+cd telecom-rag-chatbot
+```
+
+## Initialize the Python project with `uv`
+
+```bash
+uv init
+```
+
+This created the initial Python project files, including:
+
+```text
+.python-version
+pyproject.toml
+main.py
+README.md
+.gitignore
+```
+
+## Create the virtual environment
+
+```bash
+uv venv
+```
+
+Environment created with:
+
+```text
+CPython 3.13.11
+```
+
+The virtual environment was created at:
+
+```text
+.venv/
+```
+
+## Activate the virtual environment
+
+```bash
+source .venv/bin/activate
+```
+
+The terminal then showed the active environment:
+
+```text
+(telecom-rag-chatbot)
+```
+
+## Create the main project folders
+
+```bash
+mkdir backend
+mkdir frontend
+mkdir docs
+```
+
+## Create the build log
+
+```bash
+touch BUILD_LOG.md
+```
+
+## Initialize Git
+
+Git was initialized separately after `uv init`:
+
+```bash
+git init
+```
+
+Git was successfully initialized on the `main` branch.
+
+Verification:
+
+```bash
+git status
+```
+
+Result:
+
+```text
+On branch main
+No commits yet
+```
+
+### Step 1 status
+
+✅ Clean project created  
+✅ `uv` initialized  
+✅ Python virtual environment created  
+✅ Virtual environment activated  
+✅ Backend/frontend/docs folders created  
+✅ Git repository initialized  
+
+---
+
+# Step 2 — Configure Git Safety and `.gitignore` ✅
+
+Before copying application files, `.gitignore` was configured to protect secrets and prevent generated or unnecessary files from being committed to GitHub.
+
+The project uses Cursor as the IDE, so Cursor settings are also excluded.
+
+## `.gitignore`
+
+```gitignore
+# Python-generated files
+__pycache__/
+*.py[cod]
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Environment variables / API keys
+.env
+.env.*
+!.env.example
+
+# Python tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Chroma vector database
+chroma_store/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# React / Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Cursor / IDE settings
+.cursor/
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+```
+
+## Why these files are ignored
+
+- `.env` — protects API keys and secrets
+- `.venv/` — local Python virtual environment
+- `chroma_store/` — generated vector database
+- `node_modules/` — generated React dependencies
+- `__pycache__/` — generated Python cache
+- `.cursor/` — local Cursor configuration
+- `.DS_Store` — macOS system files
+
+## Verification
+
+```bash
+git status
+```
+
+The `.venv/` folder did not appear in Git status, confirming that it was correctly ignored.
+
+### Step 2 status
+
+✅ `.gitignore` configured  
+✅ API keys protected  
+✅ `.venv/` ignored  
+✅ React dependency folders ignored  
+✅ Chroma generated data ignored  
+✅ Cursor IDE files ignored  
+
+---
+
+# Step 3 — Copy the Existing Telecom RAG Backend ✅
+
+The required working backend code was copied from the original project into the new GitHub portfolio project.
+
+The original project remains unchanged.
+
+## Create backend data folder
+
+```bash
+mkdir -p backend/data
+```
+
+## Copy backend Python files
+
+```bash
+cp ../11_project_telecom_chatbot/rag_chain.py backend/
+cp ../11_project_telecom_chatbot/retriever.py backend/
+cp ../11_project_telecom_chatbot/ingest_faq.py backend/
+cp ../11_project_telecom_chatbot/ingest_tickets.py backend/
+cp ../11_project_telecom_chatbot/ingest_pdf.py backend/
+cp ../11_project_telecom_chatbot/eval_retrieval.py backend/
+cp ../11_project_telecom_chatbot/debug_retrieval.py backend/
+```
+
+## Copy knowledge-base files
+
+```bash
+cp ../11_project_telecom_chatbot/faq.csv backend/data/
+cp ../11_project_telecom_chatbot/telecom_guide.pdf backend/data/
+cp ../11_project_telecom_chatbot/tickets.db backend/data/
+```
+
+## Files intentionally not copied from the old project
+
+```text
+.env
+.venv/
+chroma_store/
+__pycache__/
+old requirements.txt
+```
+
+Reasons:
+
+- `.env` contains secrets/API keys.
+- `.venv/` is environment-specific and should never be committed.
+- `chroma_store/` is generated and will be rebuilt from the ingestion scripts.
+- `__pycache__/` is generated by Python.
+- The old `requirements.txt` was not copied; a new dependency file was created for this clean project.
+
+## Verification
+
+```bash
+find backend -maxdepth 2 -type f | sort
+```
+
+Verified files:
+
+```text
+backend/data/faq.csv
+backend/data/telecom_guide.pdf
+backend/data/tickets.db
+backend/debug_retrieval.py
+backend/eval_retrieval.py
+backend/ingest_faq.py
+backend/ingest_pdf.py
+backend/ingest_tickets.py
+backend/rag_chain.py
+backend/retriever.py
+```
+
+### Step 3 status
+
+✅ Working RAG backend copied  
+✅ FAQ data copied  
+✅ Telecom guide PDF copied  
+✅ Resolved tickets database copied  
+✅ Evaluation script copied  
+✅ Debug retrieval script copied  
+✅ Sensitive/generated files excluded  
+
+---
+
+# Step 4 — Backend Dependency Setup ✅
+
+A new `requirements.txt` was created for the portfolio project and installed using `uv`.
+
+## Main dependencies
+
+```text
+chromadb
+fastapi
+langchain
+langchain-chroma
+langchain-community
+langchain-core
+langchain-groq
+langchain-huggingface
+langchain-text-splitters
+pypdf
+python-dotenv
+sentence-transformers
+torch
+torchvision
+uvicorn[standard]
+pandas
+```
+
+Dependencies were installed and registered with the `uv` project using:
+
+```bash
+uv add -r requirements.txt
+```
+
+This updated:
+
+```text
+pyproject.toml
+uv.lock
+.venv/
+```
+
+`pyproject.toml` records the project's direct dependencies, while `uv.lock` records the exact resolved dependency versions for reproducible installs.
+
+During the first FAQ-ingestion attempt, Python reported:
+
+```text
+ModuleNotFoundError: No module named 'pandas'
+```
+
+`pandas` was then added to `requirements.txt` and installed again with:
+
+```bash
+uv add -r requirements.txt
+```
+
+Installation confirmed:
+
+```text
+pandas==3.0.6
+```
+
+Verification:
+
+```bash
+python -c "import pandas; print(pandas.__version__)"
+```
+
+Result:
+
+```text
+3.0.6
+```
+
+During dependency resolution, `uv` also reported that the transitive package `narwhals==2.27.0` was yanked. Installation still completed successfully. Because this is a transitive dependency rather than a direct project dependency, it is recorded as a maintenance note rather than pinned manually.
+
+### Step 4 status
+
+✅ New dependency list created  
+✅ Dependencies installed with `uv`  
+✅ `pyproject.toml` updated  
+✅ `uv.lock` created/updated  
+✅ Missing `pandas` dependency identified and added  
+✅ Python environment ready for backend execution  
+
+---
+
+# Step 5 — Standardize Backend File Paths ✅
+
+The backend file paths were checked after moving the knowledge-base files into `backend/data/`.
+
+## Portfolio data layout
+
+```text
+backend/data/
+├── faq.csv
+├── telecom_guide.pdf
+└── tickets.db
+```
+
+## Verified path configuration
+
+`ingest_faq.py` already used:
+
+```python
+CSV_PATH = os.path.join(BASE_DIR, "data", "faq.csv")
+```
+
+`ingest_pdf.py` already used:
+
+```python
+PDF_PATH = os.path.join(BASE_DIR, "data", "telecom_guide.pdf")
+```
+
+`retriever.py` and `eval_retrieval.py` already used:
+
+```python
+CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
+```
+
+`ingest_tickets.py` required a small correction and was updated to:
+
+```python
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
+DB_PATH = os.path.join(BASE_DIR, "data", "tickets.db")
+```
+
+This makes the script independent of the terminal's current working directory.
+
+## Verification
+
+```bash
+grep -nE "tickets.db|chroma_store|BASE_DIR" backend/ingest_tickets.py
+```
+
+Verified output showed:
+
+```text
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
+DB_PATH = os.path.join(BASE_DIR, "data", "tickets.db")
+```
+
+### Step 5 status
+
+✅ FAQ data path verified  
+✅ PDF data path verified  
+✅ Ticket database path corrected  
+✅ Chroma path standardized  
+✅ Backend paths are portable within the repository  
+
+---
+
+# Step 6 — Rebuild Chroma Knowledge Base ✅
+
+All three Chroma collections were rebuilt successfully in the new project environment.
+
+## 6.1 FAQ ingestion
+
+Command:
+
+```bash
+python backend/ingest_faq.py
+```
+
+Result:
+
+```text
+25 FAQ entries loaded.
+25 vectors stored.
+```
+
+Collection:
+
+```text
+faq
+```
+
+## 6.2 Resolved-ticket ingestion
+
+Command:
+
+```bash
+python backend/ingest_tickets.py
+```
+
+Result:
+
+```text
+19 resolved tickets loaded.
+19 vectors stored.
+```
+
+Collection:
+
+```text
+tickets
+```
+
+## 6.3 Telecom Guide PDF ingestion
+
+Command:
+
+```bash
+python backend/ingest_pdf.py
+```
+
+Result:
+
+```text
+9 pages loaded.
+Chunk size = 1200
+Chunk overlap = 250
+23 chunks produced.
+23 vectors stored.
+```
+
+Collection:
+
+```text
+guides
+```
+
+The PDF loader produced a deprecation warning for:
+
+```python
+langchain_community.document_loaders.PyPDFLoader
+```
+
+The warning did not prevent ingestion. PDF ingestion completed successfully.
+
+## Final vector knowledge base
+
+```text
+backend/chroma_store/
+
+faq
+└── 25 vectors
+
+tickets
+└── 19 vectors
+
+guides
+└── 23 vectors
+```
+
+### Step 6 status
+
+✅ FAQ collection rebuilt — 25 vectors  
+✅ Ticket collection rebuilt — 19 vectors  
+✅ PDF guide collection rebuilt — 23 vectors  
+✅ Existing PDF chunking preserved (`1200` / `250`)  
+✅ New project can generate its own Chroma knowledge base  
+
+---
+
+# Step 7 — Verify Retrieval in the New Project ✅
+
+Verified that the newly rebuilt Chroma knowledge base retrieves the correct source across all three knowledge collections.
+
+## 7.1 FAQ retrieval test
+
+Question:
+
+```text
+How do I activate 4G/LTE on my phone?
+```
+
+Result:
+
+```text
+Rank 1 → FAQ 3
+```
+
+Status: ✅ Passed
+
+## 7.2 Ticket retrieval test
+
+Question:
+
+```text
+My 4G speed is below 1 Mbps in the city centre.
+```
+
+Result:
+
+```text
+Rank 1 → Ticket TK-008
+```
+
+Status: ✅ Passed
+
+## 7.3 Telecom Guide retrieval test
+
+Question:
+
+```text
+What is SIM swap fraud?
+```
+
+Result:
+
+```text
+Rank 1 → Guide page 6
+```
+
+Additional relevant guide content from page 9 was also retrieved.
+
+Status: ✅ Passed
+
+### Step 7 status
+
+✅ Multi-source retrieval verified  
+✅ FAQ ranking verified  
+✅ Ticket ranking verified  
+✅ PDF guide ranking verified  
+✅ Correct source ranked first in all three tests  
+
+---
+
+# Step 8 — Configure Environment Secrets Safely ✅
+
+Configured environment-variable handling for the LLM API key.
+
+## Local environment file
+
+Created:
+
+```text
+.env
+```
+
+The local file contains the real Groq API key:
+
+```env
+GROQ_API_KEY=<local-secret>
+```
+
+The real key is not committed to GitHub.
+
+## GitHub-safe example
+
+Created:
+
+```text
+.env.example
+```
+
+Contents:
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+## Git protection
+
+The `.gitignore` contains:
+
+```gitignore
+.env
+.env.*
+!.env.example
+```
+
+Verification:
+
+```bash
+git status
+```
+
+Result:
+
+- `.env.example` appeared as an untracked file
+- `.env` did not appear in Git status
+
+### Step 8 status
+
+✅ Local API key file created  
+✅ Real secret excluded from Git  
+✅ `.env.example` created for GitHub  
+✅ Git ignore rules verified  
+✅ Repository is safe for API-key handling  
+
+---
+
+# Step 9 — Verify the Complete RAG Chain ✅
+
+Verified the complete Telecom RAG pipeline in the new portfolio project.
+
+## 9.1 Load `.env` safely in `rag_chain.py`
+
+Added:
+
+```python
+from pathlib import Path
+from dotenv import load_dotenv
+```
+
+and:
+
+```python
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(PROJECT_ROOT / ".env")
+```
+
+## 9.2 FAQ full-chain test
+
+Question:
+
+```text
+How do I activate 4G/LTE on my phone?
+```
+
+Correct citation:
+
+```text
+[FAQ 3]
+```
+
+Status: ✅ Passed
+
+## 9.3 Resolved-ticket full-chain test
+
+Question:
+
+```text
+My 4G speed is below 1 Mbps in the city centre.
+```
+
+Correct citation:
+
+```text
+[Ticket TK-008]
+```
+
+Status: ✅ Passed
+
+## 9.4 Telecom Guide full-chain test
+
+Question:
+
+```text
+What is SIM swap fraud?
+```
+
+Correct citation:
+
+```text
+[Guide p. 6]
+```
+
+Status: ✅ Passed
+
+## 9.5 Confidence / fallback test
+
+Question:
+
+```text
+How do I bake a chocolate cake?
+```
+
+Result:
+
+```text
+I don't know based on the available knowledge base. Please call 611 for assistance.
+```
+
+The unrelated query failed the retrieval-confidence threshold and was routed to the fallback branch instead of the normal LLM answer chain.
+
+Status: ✅ Passed
+
+## Final RAG flow
+
+```text
+Customer Question
+        │
+        ▼
+Hugging Face Embedding
+        │
+        ▼
+Multi-source Chroma Retrieval
+        │
+        ▼
+Best Document + Distance
+        │
+        ▼
+Confidence Threshold (1.2)
+       / \
+      /   \
+Confident  Low Confidence
+    │            │
+    ▼            ▼
+Prompt +       Canned
+Context        Fallback
+    │
+    ▼
+Groq Qwen
+    │
+    ▼
+Grounded Answer
+    │
+    ▼
+Source Citation
+```
+
+### Step 9 status
+
+✅ Root `.env` loading added  
+✅ FAQ RAG response verified  
+✅ Ticket RAG response verified  
+✅ Guide RAG response verified  
+✅ Source citations verified  
+✅ Confidence threshold verified  
+✅ Low-confidence fallback verified  
+✅ Complete migrated RAG chain operational  
+
+---
+
+# Step 10 — Create and Verify the FastAPI Backend ✅
+
+Created a FastAPI REST API around the existing Telecom RAG chain so that a React frontend can send customer questions over HTTP.
+
+## 10.1 Create the backend package
+
+Created:
+
+```text
+backend/__init__.py
+backend/api.py
+```
+
+The RAG import was updated to use package-style imports:
+
+```python
+from backend.retriever import build_scored_retriever
+```
+
+## 10.2 FastAPI application
+
+`backend/api.py` exposes:
+
+```text
+GET  /health
+POST /chat
+```
+
+The API creates the RAG chain once when the backend starts:
+
+```python
+rag_chain = build_chain()
+```
+
+## 10.3 Request and response models
+
+The API uses Pydantic models:
+
+```python
+class ChatRequest(BaseModel):
+    question: str
+
+class ChatResponse(BaseModel):
+    answer: str
+```
+
+## 10.4 CORS configuration
+
+CORS was configured for the React/Vite development server:
+
+```text
+http://localhost:5173
+http://127.0.0.1:5173
+```
+
+## 10.5 Start the FastAPI server
+
+Command:
+
+```bash
+uv run uvicorn backend.api:app --reload
+```
+
+Successful startup:
+
+```text
+Uvicorn running on http://127.0.0.1:8000
+Application startup complete.
+```
+
+## 10.6 Health endpoint test
+
+Command:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+Response:
+
+```json
+{"status":"ok"}
+```
+
+Status: ✅ Passed
+
+## 10.7 RAG `/chat` endpoint test
+
+Command:
+
+```bash
+curl -X POST http://127.0.0.1:8000/chat \
+-H "Content-Type: application/json" \
+-d '{"question":"What is SIM swap fraud?"}'
+```
+
+The API returned a grounded RAG answer with the correct source citation:
+
+```text
+[Guide p. 6]
+```
+
+Status: ✅ Passed
+
+## 10.8 Low-confidence fallback through the API
+
+Command:
+
+```bash
+curl -X POST http://127.0.0.1:8000/chat \
+-H "Content-Type: application/json" \
+-d '{"question":"How do I bake a chocolate cake?"}'
+```
+
+Response:
+
+```json
+{
+  "answer": "I don't know based on the available knowledge base. Please call 611 for assistance."
+}
+```
+
+Status: ✅ Passed
+
+### Step 10 status
+
+✅ Backend package structure created  
+✅ FastAPI application created  
+✅ `/health` endpoint verified  
+✅ `/chat` endpoint verified  
+✅ RAG answers returned through REST API  
+✅ Source citations preserved through API  
+✅ Low-confidence fallback verified through API  
+✅ CORS configured for React development  
+
+
+# Step 11 — Initialize and Verify the React/Vite Frontend ✅
+
+Verified the local JavaScript environment before creating the React application.
+
+## 11.1 Verify Node.js and npm
+
+Commands:
+
+```bash
+node --version
+npm --version
+```
+
+Verified versions:
+
+```text
+Node.js: v25.8.2
+npm: 11.11.1
+```
+
+## 11.2 Create the React application with Vite
+
+From the project root, created the frontend with:
+
+```bash
+npm create vite@latest frontend -- --template react
+```
+
+Vite downloaded the project generator and scaffolded the application inside:
+
+```text
+frontend/
+```
+
+During the interactive setup:
+
+```text
+Linter: ESLint
+Install with npm and start now?: Yes
+```
+
+### Why Vite is used
+
+Vite provides the React development server and production build tooling.
+
+Development flow:
+
+```text
+React source code
+      ↓
+Vite
+      ↓
+Fast development server
+      ↓
+Browser
+```
+
+### Why ESLint is used
+
+ESLint checks JavaScript and React code for common mistakes and code-quality issues during development.
+
+This is useful for learning React and also reflects a common professional frontend workflow.
+
+## 11.3 Install frontend dependencies
+
+Because `Yes` was selected for automatic installation, Vite ran the npm installation during setup.
+
+Result:
+
+```text
+143 packages added
+144 packages audited
+0 vulnerabilities
+```
+
+No additional `npm install` command was required after the automated setup.
+
+## 11.4 Start the Vite development server
+
+Vite automatically started the React development server.
+
+Verified output:
+
+```text
+VITE v8.3.3
+Local: http://localhost:5173/
+```
+
+The frontend was opened successfully in the browser and the default React/Vite starter page was displayed.
+
+## 11.5 React application startup flow
+
+The generated React application follows this basic flow:
+
+```text
+index.html
+    ↓
+src/main.jsx
+    ↓
+<App />
+    ↓
+src/App.jsx
+    ↓
+Application UI
+```
+
+For this project, the default `App.jsx` UI will next be replaced with the Telecom RAG chatbot interface.
+
+## 11.6 Generated frontend structure
+
+The Vite project contains approximately:
+
+```text
+frontend/
+├── node_modules/             # generated; ignored by Git
+├── public/
+├── src/
+│   ├── assets/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+└── vite.config.js
+```
+
+### Step 11 status
+
+✅ Node.js verified  
+✅ npm verified  
+✅ React/Vite application created  
+✅ ESLint configured  
+✅ Frontend dependencies installed  
+✅ 0 npm vulnerabilities reported  
+✅ Vite development server started  
+✅ Default React/Vite page verified in the browser  
+
+---
+
+# Step 12 — Build and Verify the Telecom Chat Interface ✅
+
+Replaced the default Vite starter page with a custom Telecom AI chat interface.
+
+## 12.1 Replace the default `App.jsx`
+
+Updated:
+
+```text
+frontend/src/App.jsx
+```
+
+The default Vite demo content, logos, links, and counter were removed.
+
+The new React component now provides:
+
+- Telecom AI Assistant header
+- Initial assistant greeting
+- Customer message entry
+- Dynamic message list
+- User message bubbles
+- Assistant message bubbles
+- Send button
+- Form handling
+
+The component uses React state:
+
+```jsx
+const [question, setQuestion] = useState('')
+
+const [messages, setMessages] = useState([
+  {
+    id: 1,
+    role: 'assistant',
+    text: 'Hello! I am your Telecom AI Assistant. How can I help you today?',
+  },
+])
+```
+
+`question` stores the text currently typed by the customer.
+
+`messages` stores the conversation displayed in the chat window.
+
+## 12.2 Add user-message handling
+
+A `handleSubmit()` function was added.
+
+The function:
+
+```text
+Submit question
+      ↓
+Prevent default form refresh
+      ↓
+Trim whitespace
+      ↓
+Ignore empty messages
+      ↓
+Create user message object
+      ↓
+Append to messages state
+      ↓
+Clear input field
+```
+
+At this stage, the UI stores and displays the customer message locally in React.
+
+The FastAPI backend is not yet called in this step.
+
+## 12.3 Dynamic message rendering
+
+Messages are displayed using:
+
+```jsx
+messages.map((message) => ...)
+```
+
+Message alignment is based on the role:
+
+```text
+assistant → left
+user      → right
+```
+
+The UI labels messages as:
+
+```text
+Telecom Assistant
+You
+```
+
+## 12.4 Replace the default Vite global CSS
+
+Updated:
+
+```text
+frontend/src/index.css
+```
+
+The original Vite global theme, fixed root width, centered starter-page layout,
+dark-mode variables, and demo typography were removed.
+
+The replacement global CSS provides:
+
+- consistent `box-sizing`
+- full-width root layout
+- minimum viewport sizing
+- application font stack
+- light background
+- shared input/button font inheritance
+
+## 12.5 Replace the default Vite component CSS
+
+Updated:
+
+```text
+frontend/src/App.css
+```
+
+The original Vite demo styles such as:
+
+```text
+.counter
+.hero
+#center
+#next-steps
+#docs
+#social
+.ticks
+```
+
+were removed because they no longer apply to the Telecom application.
+
+The new styling provides:
+
+- full-screen application background
+- centered chat container
+- blue/teal Telecom gradient header
+- AI brand badge
+- assistant message bubbles
+- customer message bubbles
+- scrollable conversation area
+- styled question input
+- Send button
+- focus/hover states
+- responsive mobile layout
+
+## 12.6 Browser verification
+
+The interface was verified at:
+
+```text
+http://localhost:5173/
+```
+
+A test question was entered:
+
+```text
+My mobile internet is slow
+```
+
+The message appeared correctly as a blue customer message bubble on the right side of the chat.
+
+The browser showed:
+
+```text
+Telecom AI Assistant
+RAG-powered customer support
+```
+
+with the initial assistant greeting and working message-entry form.
+
+At this stage, no AI answer is returned yet because React has not been connected to the FastAPI `/chat` endpoint.
+
+## Step 12 status
+
+✅ Default Vite starter UI removed  
+✅ Telecom AI chat interface created  
+✅ React state added for question input  
+✅ React state added for conversation messages  
+✅ User-message submission working  
+✅ Dynamic message rendering working  
+✅ User and assistant message styles added  
+✅ Default Vite CSS removed  
+✅ Telecom-themed responsive styling added  
+✅ Browser UI verified  
+✅ Test user message displayed correctly  
+
+---
+
+# Step 13 — Connect React to FastAPI ✅
+
+Connected the React chat interface to the FastAPI `/chat` endpoint so user questions now travel through the complete RAG pipeline and the generated response is displayed back in the browser.
+
+## 13.1 Send the customer question from React
+
+Updated:
+
+```text
+frontend/src/App.jsx
+```
+
+The `handleSubmit()` function was changed from local-only message handling to an asynchronous API workflow.
+
+React now sends the customer question to:
+
+```text
+http://127.0.0.1:8000/chat
+```
+
+using:
+
+```jsx
+const response = await fetch(
+  'http://127.0.0.1:8000/chat',
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      question: trimmedQuestion,
+    }),
+  },
+)
+```
+
+The request body uses the API contract:
+
+```json
+{
+  "question": "Why is my mobile internet so slow?"
+}
+```
+
+## 13.2 Receive the FastAPI response
+
+FastAPI returns JSON in the form:
+
+```json
+{
+  "answer": "..."
+}
+```
+
+React reads the response using:
+
+```jsx
+const data = await response.json()
+```
+
+The answer is converted into an assistant message:
+
+```jsx
+const assistantMessage = {
+  id: Date.now() + 1,
+  role: 'assistant',
+  text: data.answer,
+}
+```
+
+The assistant message is then appended to the existing conversation state so it appears in the chat UI.
+
+## 13.3 End-to-end application flow
+
+The application now works through the full stack:
+
+```text
+Customer Question
+       │
+       ▼
+React Chat UI
+       │
+       │ POST /chat
+       ▼
+FastAPI Backend
+       │
+       ▼
+LangChain RAG Chain
+       │
+       ▼
+Hugging Face Embedding
+       │
+       ▼
+Chroma Retrieval
+       │
+       ▼
+Confidence Check
+      / \
+     /   \
+Confident  Low Confidence
+    │           │
+    ▼           ▼
+Groq Qwen    Fallback
+    │
+    ▼
+Grounded Answer
+    │
+    ▼
+Source Citation
+    │
+    ▼
+FastAPI JSON Response
+    │
+    ▼
+React Assistant Bubble
+```
+
+## 13.4 Browser verification
+
+The frontend-to-backend integration was tested in the browser with:
+
+```text
+Why is my mobile internet so slow?
+```
+
+The question appeared as a customer message bubble.
+
+The frontend then received the actual RAG response from FastAPI and displayed it as an assistant message.
+
+The response included the correct citation:
+
+```text
+[FAQ 2]
+```
+
+The answer correctly included:
+
+- possible network congestion
+- low-signal conditions
+- high-speed data-cap exhaustion
+- airplane-mode reconnect guidance
+- throttling to 512 kbps when high-speed data is exhausted
+
+This confirms that the source citation generated by the backend survives the complete React → FastAPI → RAG → React flow.
+
+## Step 13 status
+
+✅ React connected to FastAPI  
+✅ POST `/chat` request working from the browser  
+✅ JSON request body working  
+✅ FastAPI RAG response received by React  
+✅ Assistant response appended to React state  
+✅ Real RAG answer displayed in the chat UI  
+✅ Source citation preserved end-to-end  
+✅ Full frontend-to-backend RAG flow verified  
+
+---
+
+# Step 14 — Display RAG Source Citations as UI Badges ✅
+
+Improved the React chat interface so source citations are displayed separately from the assistant answer instead of appearing inline at the end of the response text.
+
+## 14.1 Add citation parsing in `App.jsx`
+
+Updated:
+
+```text
+frontend/src/App.jsx
+```
+
+Added a helper function that separates the answer text from the citation returned by the backend:
+
+```jsx
+function splitAnswerAndSource(text) {
+  const citationPattern =
+    /\[(FAQ \d+|Ticket [^\]]+|Guide p\. [^\]]+)\]\s*$/
+
+  const match = text.match(citationPattern)
+
+  if (!match) {
+    return {
+      answer: text,
+      source: null,
+    }
+  }
+
+  return {
+    answer: text.slice(0, match.index).trim(),
+    source: match[1],
+  }
+}
+```
+
+The helper supports the current RAG citation formats:
+
+```text
+[FAQ 2]
+[Ticket TK-008]
+[Guide p. 6]
+```
+
+For a response such as:
+
+```text
+Slow speeds are usually caused by network congestion...
+
+[FAQ 2]
+```
+
+React now stores:
+
+```text
+answer = Slow speeds are usually caused by network congestion...
+source = FAQ 2
+```
+
+If no citation is present, the function returns:
+
+```text
+source = null
+```
+
+so the UI does not create a source badge.
+
+## 14.2 Store the citation separately in message state
+
+After receiving the FastAPI response:
+
+```jsx
+const data = await response.json()
+```
+
+React now separates the response using:
+
+```jsx
+const { answer, source } =
+  splitAnswerAndSource(data.answer)
+```
+
+The assistant message stores both values:
+
+```jsx
+const assistantMessage = {
+  id: Date.now() + 1,
+  role: 'assistant',
+  text: answer,
+  source: source,
+}
+```
+
+This keeps presentation data structured inside the frontend instead of leaving the citation embedded in the answer paragraph.
+
+## 14.3 Render the source badge conditionally
+
+Assistant messages now include:
+
+```jsx
+{message.source && (
+  <div className="source-badge">
+    Source: {message.source}
+  </div>
+)}
+```
+
+The badge is rendered only when a citation exists.
+
+This means normal grounded RAG responses can show:
+
+```text
+Source: FAQ 2
+Source: Ticket TK-008
+Source: Guide p. 6
+```
+
+while responses without a citation can remain badge-free.
+
+## 14.4 Style the source badge
+
+Updated:
+
+```text
+frontend/src/App.css
+```
+
+Added:
+
+```css
+.source-badge {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #e8f2ff;
+  color: #0b5cab;
+  border: 1px solid #c7def7;
+  font-size: 12px;
+  font-weight: 700;
+}
+```
+
+This creates a compact visual source label beneath the assistant answer.
+
+## 14.5 Browser verification
+
+A resolved-ticket response was verified in the React interface.
+
+The assistant answer was displayed normally, and the citation appeared separately as:
+
+```text
+Source: Ticket TK-008
+```
+
+The original inline citation:
+
+```text
+[Ticket TK-008]
+```
+
+was no longer part of the answer paragraph.
+
+A guide question was also sent through the interface, confirming that the updated chat flow continued to return grounded RAG responses after the citation-parsing change.
+
+## Step 14 status
+
+✅ Citation parser added  
+✅ Citation removed from answer body  
+✅ Answer and source stored separately in React state  
+✅ Conditional source-badge rendering added  
+✅ Source-badge CSS added  
+✅ FAQ/Ticket/Guide citation formats supported  
+✅ Ticket citation badge verified in the browser  
+✅ Existing RAG chat flow preserved after UI change  
+
+---
+
+# Step 15 — Verify Low-Confidence Fallback in React ✅
+
+Verified the confidence-based fallback through the complete browser application.
+
+## 15.1 Browser fallback test
+
+The following unrelated question was entered in the React chat interface:
+
+```text
+How do I bake a chocolate cake?
+```
+
+This question is outside the telecom knowledge base.
+
+The application returned:
+
+```text
+I don't know based on the available knowledge base.
+Please call 611 for assistance.
+```
+
+## 15.2 End-to-end fallback flow
+
+The fallback path now works through the complete application:
+
+```text
+React Question
+      │
+      ▼
+FastAPI /chat
+      │
+      ▼
+Chroma Retrieval
+      │
+      ▼
+Best Distance > Threshold
+      │
+      ▼
+Low Confidence
+      │
+      ▼
+Fallback Branch
+      │
+      ▼
+FastAPI JSON Response
+      │
+      ▼
+React Assistant Message
+```
+
+The normal grounded LLM answer branch is skipped for low-confidence retrieval results.
+
+## 15.3 Verify source-badge behavior
+
+The fallback response contains no RAG citation.
+
+Therefore the frontend citation parser returns:
+
+```text
+source = null
+```
+
+React correctly displayed the fallback assistant message without rendering a `Source:` badge.
+
+This confirms that the citation UI does not invent a source for low-confidence responses.
+
+## 15.4 Browser verification result
+
+Verified in the React interface:
+
+```text
+Customer:
+How do I bake a chocolate cake?
+
+Telecom Assistant:
+I don't know based on the available knowledge base.
+Please call 611 for assistance.
+
+Source badge:
+Not displayed
+```
+
+## Step 15 status
+
+✅ Low-confidence question tested in React  
+✅ FastAPI fallback returned correctly  
+✅ Fallback displayed in assistant bubble  
+✅ No source citation attached  
+✅ No false source badge displayed  
+✅ Complete browser fallback flow verified  
+
+---
+
+# Step 16 — Add Loading and Error Handling ✅
+
+Improved the React chat experience by adding a loading state, disabled controls while waiting for the backend, and a friendly error message when the FastAPI service is unavailable.
+
+## 16.1 Add loading state
+
+Updated:
+
+```text
+frontend/src/App.jsx
+```
+
+Added:
+
+```jsx
+const [isLoading, setIsLoading] = useState(false)
+```
+
+The loading state is enabled immediately after the customer submits a valid question:
+
+```jsx
+setIsLoading(true)
+```
+
+and cleared after the request finishes:
+
+```jsx
+finally {
+  setIsLoading(false)
+}
+```
+
+This ensures the UI exits the loading state whether the request succeeds or fails.
+
+## 16.2 Prevent duplicate submissions
+
+The submit handler now ignores requests while another request is still in progress:
+
+```jsx
+if (!trimmedQuestion || isLoading) {
+  return
+}
+```
+
+This prevents the customer from sending multiple overlapping requests accidentally.
+
+## 16.3 Display a temporary thinking message
+
+While FastAPI is processing the question, the React UI displays:
+
+```text
+Telecom Assistant
+Thinking...
+```
+
+using:
+
+```jsx
+{isLoading && (
+  <div className="message-row assistant">
+    <div className="message-bubble assistant loading-message">
+      <span className="message-role">
+        Telecom Assistant
+      </span>
+      <p>Thinking...</p>
+    </div>
+  </div>
+)}
+```
+
+## 16.4 Disable input and Send button while waiting
+
+The question input and Send button are temporarily disabled:
+
+```jsx
+disabled={isLoading}
+```
+
+The placeholder changes to:
+
+```text
+Waiting for response...
+```
+
+and the button text changes from:
+
+```text
+Send
+```
+
+to:
+
+```text
+Waiting...
+```
+
+This clearly communicates that the request is still being processed.
+
+## 16.5 Handle HTTP and network failures
+
+The API call now checks:
+
+```jsx
+if (!response.ok) {
+  throw new Error(
+    `API request failed: ${response.status}`,
+  )
+}
+```
+
+The request is wrapped in:
+
+```text
+try
+catch
+finally
+```
+
+Flow:
+
+```text
+try
+  → call FastAPI and process the RAG response
+
+catch
+  → display a friendly connection error
+
+finally
+  → clear the loading state
+```
+
+If the backend cannot be reached, React displays:
+
+```text
+Sorry, I could not connect to the support service. Please try again.
+```
+
+The error message has:
+
+```text
+source = null
+```
+
+so no source badge is displayed.
+
+## 16.6 Add loading and disabled-state styling
+
+Updated:
+
+```text
+frontend/src/App.css
+```
+
+Added styles for:
+
+```css
+.loading-message
+.chat-input-area input:disabled
+.chat-input-area button:disabled
+```
+
+These visually distinguish the waiting state and prevent interaction while the request is in progress.
+
+## 16.7 Loading-state browser test
+
+With FastAPI running, a telecom question was submitted.
+
+The UI successfully showed:
+
+```text
+Thinking...
+Waiting...
+```
+
+before replacing the temporary loading state with the real RAG response.
+
+Status: ✅ Passed
+
+## 16.8 Error-state browser test
+
+FastAPI was deliberately stopped with:
+
+```bash
+Ctrl + C
+```
+
+while the React frontend remained running.
+
+A question was submitted from the browser.
+
+React displayed the expected friendly message:
+
+```text
+Sorry, I could not connect to the support service. Please try again.
+```
+
+No source badge was displayed.
+
+Status: ✅ Passed
+
+FastAPI can then be restarted with:
+
+```bash
+uv run uvicorn backend.api:app --reload
+```
+
+## Step 16 status
+
+✅ Loading state added  
+✅ `Thinking...` assistant indicator added  
+✅ Input disabled while waiting  
+✅ Send button disabled while waiting  
+✅ Button text changes to `Waiting...`  
+✅ Duplicate submissions prevented  
+✅ HTTP failure handling added  
+✅ Network failure handling added  
+✅ Friendly browser error message verified  
+✅ Error response displays no source badge  
+✅ Loading and error flows verified end-to-end  
+
+---
+
+# Step 17 — Add Architecture Documentation and Portfolio Screenshots ✅
+
+Created project architecture documentation and captured clean screenshots for GitHub and interview presentation.
+
+## 17.1 Architecture documentation
+
+Created:
+
+```text
+docs/ARCHITECTURE.md
+```
+
+The document describes the complete application architecture, including:
+
+- React frontend
+- FastAPI backend
+- LangChain RAG orchestration
+- Hugging Face embeddings
+- Chroma vector database
+- FAQ, resolved-ticket, and PDF guide collections
+- confidence-based fallback logic
+- Groq-hosted Qwen LLM
+- source citation behavior
+- loading and error handling
+- retrieval evaluation
+- full request flow
+- project structure
+- technology stack
+
+A Mermaid diagram was included to show the high-level system flow.
+
+## 17.2 Screenshot folder
+
+Created:
+
+```text
+docs/screenshots/
+```
+
+This folder stores portfolio screenshots that can be referenced directly from the GitHub README.
+
+## 17.3 FAQ response screenshot
+
+Captured:
+
+```text
+docs/screenshots/01-faq-response.png
+```
+
+The screenshot shows:
+
+```text
+Customer question
+        ↓
+RAG answer
+        ↓
+Source: FAQ 2
+```
+
+This demonstrates a grounded FAQ response and the dedicated source badge.
+
+## 17.4 Resolved-ticket screenshot
+
+Captured:
+
+```text
+docs/screenshots/02-ticket-response.png
+```
+
+The screenshot shows the resolved-ticket test question:
+
+```text
+My 4G speed is below 1 Mbps in the city centre.
+```
+
+with the source badge:
+
+```text
+Source: Ticket TK-008
+```
+
+This demonstrates retrieval from the resolved support-ticket knowledge source.
+
+## 17.5 Low-confidence fallback screenshot
+
+Captured:
+
+```text
+docs/screenshots/03-fallback-response.png
+```
+
+The screenshot uses the unrelated question:
+
+```text
+How do I bake a chocolate cake?
+```
+
+and shows the fallback response:
+
+```text
+I don't know based on the available knowledge base.
+Please call 611 for assistance.
+```
+
+No source badge is displayed, confirming that the application does not invent a citation for a low-confidence answer.
+
+## 17.6 Portfolio screenshot set
+
+The project now contains:
+
+```text
+docs/screenshots/
+├── 01-faq-response.png
+├── 02-ticket-response.png
+└── 03-fallback-response.png
+```
+
+Together, the screenshots demonstrate:
+
+```text
+Grounded FAQ response       ✅
+Resolved-ticket response    ✅
+Source citation badges      ✅
+Confidence fallback         ✅
+No false fallback citation  ✅
+React chat interface        ✅
+```
+
+## Step 17 status
+
+✅ Architecture document created  
+✅ Mermaid architecture diagram added  
+✅ Knowledge-source documentation added  
+✅ Retrieval and confidence flow documented  
+✅ Frontend/backend flow documented  
+✅ Screenshot directory created  
+✅ FAQ response screenshot captured  
+✅ Ticket response screenshot captured  
+✅ Low-confidence fallback screenshot captured  
+✅ Portfolio documentation assets ready for README  
+
+---
+
+# Step 18 — Create a Professional GitHub README ✅
+
+Created a complete root-level `README.md` for the portfolio repository.
+
+## 18.1 README purpose
+
+The README is designed to help GitHub visitors and interviewers quickly understand:
+
+- what the project does
+- the RAG architecture
+- supported knowledge sources
+- retrieval and confidence behavior
+- FastAPI and React integration
+- source citation handling
+- local setup
+- retrieval evaluation
+- current screenshots
+- technology stack
+- future improvements
+
+## 18.2 Demo screenshots
+
+The README references the portfolio screenshots stored in:
+
+```text
+docs/screenshots/
+```
+
+Included screenshots:
+
+```text
+01-faq-response.png
+02-ticket-response.png
+03-fallback-response.png
+```
+
+These demonstrate:
+
+```text
+FAQ retrieval
+Resolved-ticket retrieval
+Source badges
+Confidence fallback
+No false source citation
+```
+
+## 18.3 Architecture section
+
+The README includes a Mermaid architecture diagram showing:
+
+```text
+Customer
+   ↓
+React
+   ↓
+FastAPI
+   ↓
+LangChain RAG
+   ↓
+Hugging Face Embeddings
+   ↓
+Chroma
+   ├── FAQ
+   ├── Tickets
+   └── Guide
+   ↓
+Confidence Check
+   ├── Groq Qwen
+   └── Fallback
+   ↓
+React
+```
+
+It also links readers to:
+
+```text
+docs/ARCHITECTURE.md
+```
+
+for more detailed technical documentation.
+
+## 18.4 Knowledge-source documentation
+
+The README documents the three RAG sources:
+
+```text
+backend/data/faq.csv
+backend/data/tickets.db
+backend/data/telecom_guide.pdf
+```
+
+and their current vector counts:
+
+```text
+FAQ       → 25
+Tickets   → 19
+Guide     → 23
+```
+
+## 18.5 Retrieval and fallback documentation
+
+The README documents:
+
+```text
+Embedding model:
+sentence-transformers/all-MiniLM-L6-v2
+
+Vector database:
+Chroma
+
+Distance threshold:
+1.2
+
+Smaller distance:
+better semantic match
+```
+
+It also explains the low-confidence fallback:
+
+```text
+I don't know based on the available knowledge base.
+Please call 611 for assistance.
+```
+
+## 18.6 API documentation
+
+The README documents:
+
+```text
+GET /health
+POST /chat
+```
+
+with example `curl` requests and JSON responses.
+
+## 18.7 Local setup instructions
+
+The README now explains how to:
+
+```text
+clone the repository
+install Python dependencies with uv
+configure .env
+rebuild Chroma collections
+start FastAPI
+install frontend dependencies
+start React/Vite
+```
+
+This makes the repository reproducible for another developer or interviewer.
+
+## 18.8 Evaluation documentation
+
+The README records the current retrieval evaluation:
+
+```text
+10 handcrafted resolved-ticket queries
+Recall@3 = 100%
+```
+
+and clearly notes that this is a small handcrafted evaluation set rather than a production-scale benchmark.
+
+## 18.9 Interview-ready project highlights
+
+The README highlights practical engineering capabilities demonstrated by the project:
+
+- end-to-end RAG architecture
+- multi-source retrieval
+- semantic vector search
+- confidence-based fallback
+- source attribution
+- REST API design
+- React/FastAPI integration
+- asynchronous UI state handling
+- retrieval evaluation
+- secure API-key management
+- reproducible project structure
+
+## Step 18 status
+
+✅ Professional README created  
+✅ Portfolio screenshots included  
+✅ Architecture documented  
+✅ RAG flow documented  
+✅ Knowledge sources documented  
+✅ Confidence fallback documented  
+✅ API usage documented  
+✅ Local setup instructions documented  
+✅ Retrieval evaluation documented  
+✅ Technology stack documented  
+✅ Interview-ready project highlights added  
+
+---
+
+# Step 19 — Re-run Retrieval Evaluation in the Portfolio Project ✅
+
+Re-ran the ticket retrieval evaluation inside the clean portfolio repository to verify that the migrated project preserves the expected retrieval quality.
+
+## 19.1 Evaluation command
+
+From the project root:
+
+```bash
+python backend/eval_retrieval.py
+```
+
+The evaluation loaded the embedding model successfully and ran all 10 handcrafted ticket queries.
+
+## 19.2 Evaluation result
+
+Final result:
+
+```text
+Hits: 10/10
+Recall@3: 100.00%
+```
+
+Every expected ticket appeared within the top three retrieved ticket results.
+
+In this evaluation run, the expected ticket was also ranked first for all 10 test queries.
+
+## 19.3 Verified test cases
+
+```text
+Test 1  → TK-001 → PASS
+Test 2  → TK-002 → PASS
+Test 3  → TK-003 → PASS
+Test 4  → TK-004 → PASS
+Test 5  → TK-005 → PASS
+Test 6  → TK-006 → PASS
+Test 7  → TK-007 → PASS
+Test 8  → TK-008 → PASS
+Test 9  → TK-009 → PASS
+Test 10 → TK-012 → PASS
+```
+
+## 19.4 Rank-1 distances
+
+The expected ticket was ranked first with the following distances:
+
+```text
+TK-001 → 0.5830
+TK-002 → 0.5499
+TK-003 → 0.5407
+TK-004 → 0.5561
+TK-005 → 0.4853
+TK-006 → 0.5581
+TK-007 → 0.5669
+TK-008 → 0.4556
+TK-009 → 0.2628
+TK-012 → 0.2997
+```
+
+These results confirm that the clean portfolio project is using the rebuilt ticket collection correctly.
+
+## 19.5 Evaluation interpretation
+
+Metric:
+
+```text
+Recall@3
+```
+
+Definition used by this project:
+
+```text
+Did the expected ticket appear anywhere in the top 3 retrieved results?
+```
+
+Result:
+
+```text
+10 / 10 = 100%
+```
+
+This result applies to the current small handcrafted set of 10 ticket queries and is not presented as a production-scale benchmark.
+
+## Step 19 status
+
+✅ Evaluation executed in the clean portfolio repository  
+✅ 10 test queries completed  
+✅ 10/10 tests passed  
+✅ Recall@3 = 100.00%  
+✅ Expected ticket ranked first in all 10 tests  
+✅ Portfolio retrieval behavior verified after migration  
+
+---
+
+# Current Project Structure
+
+At the end of Step 19, the project is approximately:
+
+```text
+telecom-rag-chatbot/
+├── .git/
+├── .venv/                      # local only; ignored by Git
+├── .env                        # local secret; ignored by Git
+├── .env.example                # safe for GitHub
+├── backend/
+│   ├── __init__.py
+│   ├── api.py
+│   ├── chroma_store/           # generated; ignored by Git
+│   ├── data/
+│   │   ├── faq.csv
+│   │   ├── telecom_guide.pdf
+│   │   └── tickets.db
+│   ├── debug_retrieval.py
+│   ├── eval_retrieval.py
+│   ├── ingest_faq.py
+│   ├── ingest_pdf.py
+│   ├── ingest_tickets.py
+│   ├── rag_chain.py
+│   └── retriever.py
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── screenshots/
+│       ├── 01-faq-response.png
+│       ├── 02-ticket-response.png
+│       └── 03-fallback-response.png
+├── frontend/
+│   ├── node_modules/             # generated; ignored by Git
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   └── vite.config.js
+├── .gitignore
+├── .python-version
+├── BUILD_LOG.md
+├── README.md
+├── main.py
+├── pyproject.toml
+├── requirements.txt
+└── uv.lock
+```
+
+---
+
+Notes after Step 19:
+
+- `README.md` provides the main GitHub/interview entry point for the project.
+- `docs/ARCHITECTURE.md` contains the detailed architecture documentation.
+- `docs/screenshots/` contains three portfolio screenshots.
+- Retrieval evaluation was re-run in the clean portfolio repository.
+- All 10 handcrafted ticket tests passed with Recall@3 = 100.00%.
+- The expected ticket ranked first for all 10 current evaluation queries.
+- The next step is to clean and verify the repository before creating the final Git commits and pushing to GitHub.
+
+---
+
+# Existing RAG Features Preserved
+
+The portfolio version currently retains:
+
+- FAQ retrieval
+- Resolved-ticket retrieval
+- PDF telecom guide retrieval
+- Hugging Face embeddings using `sentence-transformers/all-MiniLM-L6-v2`
+- Chroma vector database
+- LangChain RAG chain
+- Groq-hosted Qwen model
+- Source-aware answer generation
+- FAQ citations such as `[FAQ 3]`
+- Ticket citations such as `[Ticket TK-008]`
+- Guide citations such as `[Guide p. 6]`
+- Confidence threshold using Chroma distance
+- Low-confidence fallback without calling the normal LLM answer branch
+- Fallback message directing the customer to call 611
+- Retrieval debugging
+- Top-3 retrieval evaluation
+- 10 handcrafted ticket test cases
+- Recall@3 result of 100% on the current evaluation set
+- FastAPI REST API
+- `/health` endpoint
+- `/chat` endpoint
+- CORS configuration for React/Vite
+- React/Vite frontend initialized
+- ESLint configured
+- Frontend development server verified
+- Custom Telecom chat interface
+- React message state and input handling
+- Responsive chat styling
+- React-to-FastAPI integration
+- Browser-based POST `/chat` requests
+- Real RAG responses displayed in React
+- End-to-end source citation preservation
+- Dedicated source citation badges
+- Frontend citation parsing for FAQ, ticket, and guide sources
+- React fallback verification without false citation
+- Conditional source badge suppression for fallback responses
+- Loading state and duplicate-submit protection
+- Friendly API/network error handling
+- Disabled input/button state while requests are running
+- Architecture documentation
+- Mermaid system diagram
+- GitHub/interview screenshots
+- Professional GitHub README
+- Reproducible local setup documentation
+- Retrieval evaluation re-verified in clean portfolio repo
+
+---
+
+# Target Interview Architecture
+
+```text
+React Frontend
+      │
+      │ HTTP / REST
+      ▼
+FastAPI Backend
+      │
+      ▼
+LangChain RAG Chain
+      │
+      ├── FAQ Chroma Collection
+      ├── Ticket Chroma Collection
+      └── Guide Chroma Collection
+      │
+      ▼
+Best Retrieved Context
+      │
+      ▼
+Confidence Check
+   ┌───────────────┐
+   │               │
+Confident      Low Confidence
+   │               │
+   ▼               ▼
+Groq Qwen      Canned Fallback
+   │
+   ▼
+Answer + Source Citation
+   │
+   ▼
+React Chat Interface
+```
+
+---
+
+# Planned Next Steps
+
+1. ✅ Create clean project and initialize `uv`
+2. ✅ Configure `.gitignore`
+3. ✅ Copy the existing RAG backend and knowledge sources
+4. ✅ Install and verify backend dependencies with `uv`
+5. ✅ Standardize backend file paths
+6. ✅ Rebuild FAQ, ticket, and guide Chroma collections
+7. ✅ Verify retrieval in the new project
+8. ✅ Configure `.env`, create `.env.example`, and verify secret handling
+9. ✅ Verify the complete RAG chain, citations, confidence threshold, and fallback behavior
+10. ✅ Create and verify the FastAPI backend
+11. ✅ Create and verify the React/Vite frontend
+12. ✅ Build and verify the telecom chat interface
+13. ✅ Connect React to FastAPI
+14. ✅ Display RAG source citations cleanly in the UI
+15. ✅ Display and verify fallback responses for low-confidence queries
+16. ✅ Add and verify loading and error states
+17. ✅ Add architecture documentation and screenshots
+18. ✅ Create a professional GitHub `README.md`
+19. ✅ Re-run retrieval evaluation in the portfolio project and document results
+20. ⏳ Clean and verify the repository
+21. ⏳ Create Git commits and push to GitHub
+
+---
+
+# Build Status
+
+Current milestone: **Step 19 complete — retrieval evaluation was re-run in the clean portfolio project with 10/10 hits, Recall@3 = 100.00%, and the expected ticket ranked first in all 10 tests.**
+
+Verified backend capabilities:
+
+```text
+FAQ retrieval          ✅
+Ticket retrieval       ✅
+Guide retrieval        ✅
+Source citations       ✅
+Confidence fallback    ✅
+Groq generation        ✅
+GET /health            ✅
+POST /chat             ✅
+CORS for React/Vite    ✅
+React/Vite initialized ✅
+ESLint configured      ✅
+Frontend dev server    ✅
+Telecom chat UI         ✅
+React message state     ✅
+Responsive styling      ✅
+React → FastAPI         ✅
+Real RAG UI responses   ✅
+Citation preserved      ✅
+Source badge UI         ✅
+Citation parsing        ✅
+React fallback UI       ✅
+No false source badge   ✅
+Loading state           ✅
+Friendly error handling ✅
+Disabled controls       ✅
+Architecture docs       ✅
+Portfolio screenshots   ✅
+Professional README     ✅
+Retrieval eval re-run   ✅
+Recall@3 = 100%         ✅
+```
+
+Next milestone: **Step 20 — clean and verify the repository before creating the final Git commits and pushing to GitHub.**
