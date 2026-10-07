@@ -3,17 +3,16 @@ Ingests resolved tickets from data/tickets.db into the 'tickets' Chroma collecti
 Run once (or after adding new tickets): python ingest_tickets.py
 """
 import os
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 import sqlite3
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from backend.embeddings import get_embeddings
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
 COLLECTION  = "tickets"
 DB_PATH     = os.path.join(BASE_DIR, "data", "tickets.db")
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
 
 
 def load_ticket_documents(db_path: str) -> list[Document]:
@@ -50,7 +49,7 @@ def main():
     print(f"  {len(docs)} resolved tickets loaded.")
 
     print("Initialising embedding model...")
-    embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+    embeddings = get_embeddings()
     # Remove the existing collection so re-ingestion does not create duplicates.
     try:
         old_store = Chroma(

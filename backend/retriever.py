@@ -10,20 +10,18 @@ Retrieves candidates from each collection and keeps the best matches overall.
 import os
 
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from backend.embeddings import get_embeddings
 from langchain_core.runnables import RunnableLambda, Runnable
 from langchain_core.documents import Document
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
 
 
 def _get_stores():
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBED_MODEL
-    )
+    embeddings = get_embeddings()
 
     return [
         Chroma(

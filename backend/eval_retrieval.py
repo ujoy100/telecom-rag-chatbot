@@ -1,13 +1,11 @@
 import os
 
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from backend.embeddings import get_embeddings
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
-
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 TOP_K = 3
 
@@ -58,10 +56,7 @@ TEST_CASES = [
 
 def main():
     # Load the same embedding model used during ingestion
-    embeddings = HuggingFaceEmbeddings(
-        model_name=EMBED_MODEL
-    )
-
+    embeddings = get_embeddings()
     # Open only the tickets collection
     ticket_store = Chroma(
         collection_name="tickets",

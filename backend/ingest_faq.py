@@ -3,17 +3,17 @@ Ingests data/faq.csv into the 'faq' Chroma collection.
 Run once (or whenever the CSV changes): python ingest_faq.py
 """
 import os
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
 import pandas as pd
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from backend.embeddings import get_embeddings
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
 COLLECTION  = "faq"
 CSV_PATH    = os.path.join(BASE_DIR, "data", "faq.csv")
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
 
 
 def load_faq_documents(csv_path: str) -> list[Document]:
@@ -34,7 +34,7 @@ def main():
     print(f"  {len(docs)} FAQ entries loaded.")
 
     print("Initialising embedding model...")
-    embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+    embeddings = get_embeddings()
 
     # Rebuild this collection cleanly to avoid duplicate/stale vectors.
     old_store = Chroma(

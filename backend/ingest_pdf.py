@@ -5,18 +5,18 @@ stay together as much as possible.
 Run after changing the PDF: python ingest_pdf.py
 """
 import os
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from backend.embeddings import get_embeddings
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHROMA_DIR = os.path.join(BASE_DIR, "chroma_store")
 COLLECTION = "guides"
 PDF_PATH = os.path.join(BASE_DIR, "data", "telecom_guide.pdf")
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
 
 # 600/100 split the Wangiri definition from its prevention advice.
 # Larger chunks + overlap keep related sentences together.
@@ -47,7 +47,7 @@ def main():
     print(f"  {len(chunks)} chunks produced.")
 
     print("Initialising embedding model...")
-    embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+    embeddings = get_embeddings()
 
     # Remove the old guide collection before rebuilding it.
     # This prevents stale 600-character chunks and duplicate vectors.
