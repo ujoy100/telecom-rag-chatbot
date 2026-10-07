@@ -51,6 +51,17 @@ def main():
 
     print("Initialising embedding model...")
     embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
+    # Remove the existing collection so re-ingestion does not create duplicates.
+    try:
+        old_store = Chroma(
+            collection_name=COLLECTION,
+            embedding_function=embeddings,
+            persist_directory=CHROMA_DIR,
+        )
+        old_store.delete_collection()
+        print(f"  Existing '{COLLECTION}' collection removed.")
+    except Exception:
+        pass
 
     print(f"Embedding and storing in Chroma collection '{COLLECTION}'...")
     vectorstore = Chroma.from_documents(
