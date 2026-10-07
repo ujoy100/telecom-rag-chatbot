@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import './App.css'
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000"
 
 function splitAnswerAndSource(text) {
   const citationPattern =
@@ -73,7 +75,7 @@ function App() {
   
     try {
       const response = await fetch(
-        'http://127.0.0.1:8000/chat/stream',
+        `${API_BASE_URL}/chat/stream`,
         {
           method: 'POST',
           headers: {
