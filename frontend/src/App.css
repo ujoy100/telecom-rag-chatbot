@@ -27,7 +27,10 @@
   overflow: hidden;
 }
 
-/* Header */
+
+/* ---------------------------------------------------------
+   Header
+--------------------------------------------------------- */
 
 .chat-header {
   display: flex;
@@ -70,7 +73,10 @@
   opacity: 0.85;
 }
 
-/* Messages */
+
+/* ---------------------------------------------------------
+   Messages
+--------------------------------------------------------- */
 
 .chat-messages {
   flex: 1;
@@ -149,10 +155,36 @@
   font-size: 15px;
 }
 
-/* Input */
+
+/* ---------------------------------------------------------
+   Source citation badge
+--------------------------------------------------------- */
+
+.source-badge {
+  display: inline-block;
+
+  margin-top: 12px;
+  padding: 5px 10px;
+
+  border-radius: 8px;
+
+  background: #e8f2ff;
+  color: #0b5cab;
+
+  border: 1px solid #c7def7;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* ---------------------------------------------------------
+   Chat input area
+--------------------------------------------------------- */
 
 .chat-input-area {
   display: flex;
+  align-items: stretch;
   gap: 12px;
 
   padding: 20px 24px;
@@ -162,8 +194,59 @@
   background: white;
 }
 
+
+/* ---------------------------------------------------------
+   AI model selector
+--------------------------------------------------------- */
+
+.chat-input-area select {
+  min-width: 135px;
+
+  padding: 0 14px;
+
+  border: 1px solid #cbd6e2;
+  border-radius: 12px;
+
+  background: #f8fafc;
+  color: #0b5cab;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  outline: none;
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.chat-input-area select:hover {
+  border-color: #0b5cab;
+  background: #f3f8fd;
+}
+
+.chat-input-area select:focus {
+  border-color: #0b5cab;
+
+  box-shadow: 0 0 0 3px rgba(11, 92, 171, 0.12);
+}
+
+.chat-input-area select:disabled {
+  background: #f1f5f9;
+  color: #8795a8;
+  cursor: not-allowed;
+}
+
+
+/* ---------------------------------------------------------
+   Question input
+--------------------------------------------------------- */
+
 .chat-input-area input {
   flex: 1;
+  min-width: 0;
 
   padding: 14px 16px;
 
@@ -188,6 +271,11 @@
 .chat-input-area input::placeholder {
   color: #8795a8;
 }
+
+
+/* ---------------------------------------------------------
+   Send button
+--------------------------------------------------------- */
 
 .chat-input-area button {
   padding: 0 24px;
@@ -215,7 +303,30 @@
   transform: scale(0.97);
 }
 
-/* Mobile */
+
+/* ---------------------------------------------------------
+   Loading and disabled states
+--------------------------------------------------------- */
+
+.loading-message {
+  opacity: 0.8;
+}
+
+.chat-input-area input:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
+.chat-input-area button:disabled {
+  background: #91a8c2;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* ---------------------------------------------------------
+   Mobile
+--------------------------------------------------------- */
 
 @media (max-width: 700px) {
   .app {
@@ -234,45 +345,16 @@
 
   .chat-input-area {
     padding: 14px;
+    gap: 8px;
+  }
+
+  .chat-input-area select {
+    min-width: 110px;
+    padding: 0 8px;
+    font-size: 12px;
   }
 
   .chat-input-area button {
     padding: 0 18px;
   }
-}
-
-/* Source citation badge */
-
-.source-badge {
-  display: inline-block;
-
-  margin-top: 12px;
-  padding: 5px 10px;
-
-  border-radius: 8px;
-
-  background: #e8f2ff;
-  color: #0b5cab;
-
-  border: 1px solid #c7def7;
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-/* Loading and disabled states */
-
-.loading-message {
-  opacity: 0.8;
-}
-
-.chat-input-area input:disabled {
-  background: #f1f5f9;
-  cursor: not-allowed;
-}
-
-.chat-input-area button:disabled {
-  background: #91a8c2;
-  cursor: not-allowed;
-  transform: none;
 }

@@ -1,9 +1,11 @@
 """
 Builds the RAG chain:
 retriever -> confidence check -> grounded prompt
--> Qwen 3.8 27B on Groq -> string output
+-> selected LLM provider (OpenAI or Groq) -> string output
 """
+
 from pathlib import Path
+from functools import lru_cache
 from dotenv import load_dotenv
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -11,8 +13,11 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda, RunnableBranch
 from langchain_core.documents import Document
 from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 
 from backend.retriever import build_scored_retriever
+import os
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
@@ -138,24 +143,44 @@ def _format_docs(docs: list[Document]) -> str:
 # ---------------------------------------------------------
 # Build RAG chain
 # ---------------------------------------------------------
+@lru_cache(maxsize=1)
+def get_scored_retriever():
+    return build_scored_retriever()
 
-def build_chain():
-    scored_retriever = build_scored_retriever()
+def build_chain(provider: str | None = None):
+    scored_retriever = get_scored_retriever()
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT),
         ("human", "{question}"),
     ])
 
-    llm = ChatGroq(
-        model="qwen/qwen3.8-27b",
-        temperature=0,
-        max_tokens=400,
-        reasoning_format="parsed",
-        timeout=None,
-        max_retries=2,
-    )
+   
+    provider = (provider or os.getenv("LLM_PROVIDER", "groq")).strip().lower()
 
+    if provider == "openai":
+        llm = ChatOpenAI(
+            model="gpt-4.1-mini",
+            temperature=0,
+            max_tokens=400,
+            max_retries=2,
+        )
+
+    elif provider == "groq":
+        llm = ChatGroq(
+            model="qwen/qwen3.8-27b",
+            temperature=0,
+            max_tokens=400,
+            reasoning_format="parsed",
+            timeout=None,
+            max_retries=2,
+        )
+
+    else:
+        raise ValueError(
+            f"Unsupported LLM_PROVIDER: {provider}. "
+            "Use 'openai' or 'groq'."
+        )
     # -----------------------------------------------------
     # Retrieve best document and check confidence
     # -----------------------------------------------------

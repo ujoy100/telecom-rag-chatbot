@@ -7,6 +7,7 @@ Endpoints:
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -21,11 +22,11 @@ app = FastAPI(
     title="Telecom RAG Chatbot API",
     description=(
         "REST API for a telecom customer-care RAG assistant "
-        "using LangChain, Chroma, Hugging Face embeddings, and Groq."
+        "using LangChain, Chroma, Hugging Face embeddings, "
+        "and selectable Groq or OpenAI LLM providers."
     ),
     version="1.0.0",
 )
-
 
 # ---------------------------------------------------------
 # CORS
@@ -45,21 +46,30 @@ app.add_middleware(
 
 
 # ---------------------------------------------------------
-# Build RAG chain once when the backend starts
+# Build RAG chains once when the backend starts
 # ---------------------------------------------------------
 
-rag_chain = build_chain()
+rag_chains = {
+    "groq": build_chain(provider="groq"),
+    "openai": build_chain(provider="openai"),
+}
 
 
 # ---------------------------------------------------------
 # Request / response models
 # ---------------------------------------------------------
 
+
 class ChatRequest(BaseModel):
     question: str = Field(
         ...,
         min_length=1,
         description="Customer telecom question",
+    )
+
+    provider: str = Field(
+        default="groq",
+        description="LLM provider: groq or openai",
     )
 
 
@@ -74,6 +84,7 @@ class HealthResponse(BaseModel):
 # ---------------------------------------------------------
 # Health endpoint
 # ---------------------------------------------------------
+
 
 @app.get(
     "/health",
@@ -93,6 +104,7 @@ def health_check():
 # Chat endpoint
 # ---------------------------------------------------------
 
+
 @app.post(
     "/chat",
     response_model=ChatResponse,
@@ -103,14 +115,60 @@ def chat(request: ChatRequest):
     """
 
     try:
+        provider = request.provider.strip().lower()
+
+        rag_chain = rag_chains.get(provider)
+
+        if rag_chain is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported LLM provider. Use 'groq' or 'openai'.",
+            )
+
         answer = rag_chain.invoke(request.question)
 
-        return {
-            "answer": answer,
-        }
+        return {"answer": answer}
+
+    except HTTPException:
+        raise
 
     except Exception as exc:
         raise HTTPException(
             status_code=500,
             detail="Unable to process the question.",
         ) from exc
+
+
+# ---------------------------------------------------------
+# Streaming chat endpoint
+# ---------------------------------------------------------
+
+
+@app.post("/chat/stream")
+def chat_stream(request: ChatRequest):
+    """
+    Stream a customer answer through the Telecom RAG chain.
+    """
+
+    provider = request.provider.strip().lower()
+
+    rag_chain = rag_chains.get(provider)
+
+    if rag_chain is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported LLM provider. Use 'groq' or 'openai'.",
+        )
+
+    def generate():
+        try:
+            for chunk in rag_chain.stream(request.question):
+                if chunk:
+                    yield chunk
+        except Exception:
+            yield "\nUnable to process the question."
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/plain",
+    )

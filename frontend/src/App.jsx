@@ -24,7 +24,7 @@ function splitAnswerAndSource(text) {
 
 function App() {
   const [question, setQuestion] = useState('')
-
+  const [provider, setProvider] = useState('groq')
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -39,31 +39,41 @@ function App() {
 
   async function handleSubmit(event) {
     event.preventDefault()
-
+  
     const trimmedQuestion = question.trim()
-
+  
     if (!trimmedQuestion || isLoading) {
       return
     }
-
+  
     const userMessage = {
       id: Date.now(),
       role: 'user',
       text: trimmedQuestion,
       source: null,
     }
-
+  
+    const assistantMessageId = Date.now() + 1
+  
+    const assistantMessage = {
+      id: assistantMessageId,
+      role: 'assistant',
+      text: '',
+      source: null,
+    }
+  
     setMessages((currentMessages) => [
       ...currentMessages,
       userMessage,
+      assistantMessage,
     ])
-
+  
     setQuestion('')
     setIsLoading(true)
-
+  
     try {
       const response = await fetch(
-        'http://127.0.0.1:8000/chat',
+        'http://127.0.0.1:8000/chat/stream',
         {
           method: 'POST',
           headers: {
@@ -71,50 +81,85 @@ function App() {
           },
           body: JSON.stringify({
             question: trimmedQuestion,
+            provider,
           }),
         },
       )
-
+  
       if (!response.ok) {
         throw new Error(
           `API request failed: ${response.status}`,
         )
       }
-
-      const data = await response.json()
-
-      const { answer, source } =
-        splitAnswerAndSource(data.answer)
-
-      const assistantMessage = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        text: answer,
-        source,
+  
+      if (!response.body) {
+        throw new Error('Streaming response is not available.')
       }
-
-      setMessages((currentMessages) => [
-        ...currentMessages,
-        assistantMessage,
-      ])
+  
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+  
+      let fullText = ''
+  
+      while (true) {
+        const { value, done } = await reader.read()
+  
+        if (done) {
+          break
+        }
+  
+        const chunk = decoder.decode(value, {
+          stream: true,
+        })
+  
+        fullText += chunk
+  
+        setMessages((currentMessages) =>
+          currentMessages.map((message) =>
+            message.id === assistantMessageId
+              ? {
+                  ...message,
+                  text: fullText,
+                }
+              : message,
+          ),
+        )
+      }
+  
+      fullText += decoder.decode()
+  
+      const { answer, source } =
+        splitAnswerAndSource(fullText)
+  
+      setMessages((currentMessages) =>
+        currentMessages.map((message) =>
+          message.id === assistantMessageId
+            ? {
+                ...message,
+                text: answer,
+                source,
+              }
+            : message,
+        ),
+      )
     } catch (error) {
       console.error('Chat request failed:', error)
-
-      const errorMessage = {
-        id: Date.now() + 1,
-        role: 'assistant',
-        text: 'Sorry, I could not connect to the support service. Please try again.',
-        source: null,
-      }
-
-      setMessages((currentMessages) => [
-        ...currentMessages,
-        errorMessage,
-      ])
+  
+      setMessages((currentMessages) =>
+        currentMessages.map((message) =>
+          message.id === assistantMessageId
+            ? {
+                ...message,
+                text: 'Sorry, I could not connect to the support service. Please try again.',
+                source: null,
+              }
+            : message,
+        ),
+      )
     } finally {
       setIsLoading(false)
     }
-  }
+  } 
 
 
   return (
@@ -160,19 +205,6 @@ function App() {
             </div>
           ))}
 
-
-          {isLoading && (
-            <div className="message-row assistant">
-              <div className="message-bubble assistant loading-message">
-                <span className="message-role">
-                  Telecom Assistant
-                </span>
-
-                <p>Thinking...</p>
-              </div>
-            </div>
-          )}
-
         </main>
 
 
@@ -180,6 +212,17 @@ function App() {
           className="chat-input-area"
           onSubmit={handleSubmit}
         >
+          <select
+            value={provider}
+            onChange={(event) => setProvider(event.target.value)}
+            disabled={isLoading}
+            aria-label="AI model"
+          >
+
+            <option value="groq">Groq Qwen</option>
+            <option value="openai">OpenAI GPT</option>
+          </select>
+
           <input
             type="text"
             value={question}
