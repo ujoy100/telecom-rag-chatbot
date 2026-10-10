@@ -1,13 +1,32 @@
 # Telecom RAG Chatbot
 
-A full-stack **Retrieval-Augmented Generation (RAG)** customer-support
-application for telecom use cases.
+A full-stack **Retrieval-Augmented Generation (RAG)** customer-support application for telecom use cases.
 
-The project combines a **React/Vite frontend**, **FastAPI backend**,
-**LangChain**, **Chroma**, **Hugging Face embeddings**, and selectable
-**Groq Qwen / OpenAI GPT** LLM providers. It retrieves information from
-multiple telecom knowledge sources, applies a confidence check, streams
-grounded answers to the UI, and displays source citations.
+The project combines a **React/Vite frontend**, **FastAPI backend**, **LangChain**, **Chroma**, **OpenAI embeddings**, and selectable **Groq Qwen / OpenAI GPT** providers. It retrieves telecom knowledge, checks retrieval relevance, streams grounded answers, and displays source citations.
+
+## Live Demo
+
+**Frontend (React/Vite – Vercel):** [Open live chatbot](https://telecom-rag-chatbot.vercel.app)
+
+**Backend API (FastAPI – Render):** [Open backend](https://telecom-rag-chatbot-poqa.onrender.com)
+
+**API Documentation:** [Interactive Swagger UI](https://telecom-rag-chatbot-poqa.onrender.com/docs)
+
+**Health Check:** [Check backend status](https://telecom-rag-chatbot-poqa.onrender.com/health)
+
+> Note: The backend uses Render's free instance.
+> The first request may take longer if the service has been inactive.
+
+------------------------------------------------------------------------
+
+## At a Glance
+
+- **Live application:** [Telecom RAG Chatbot](https://telecom-rag-chatbot.vercel.app)
+- **Knowledge sources:** FAQ CSV, resolved-ticket SQLite database, and PDF telecom guide
+- **Vector index:** 67 stored vectors across three Chroma collections (25 FAQ, 19 tickets, 23 guide chunks)
+- **LLMs:** Runtime choice between Groq-hosted Qwen and OpenAI GPT
+- **Evaluation:** Recall@3 = 10/10 on a small, handcrafted resolved-ticket test set (not a production benchmark)
+- **Deployment:** Vercel frontend and Render FastAPI backend
 
 ------------------------------------------------------------------------
 
@@ -49,6 +68,7 @@ I don't know based on the available knowledge base. Please call 611 for assistan
 No source badge is displayed for fallback responses.
 
 ------------------------------------------------------------------------
+
 ### Runtime Model Selection
 
 The React interface allows the user to switch between **Groq Qwen** and **OpenAI GPT** at runtime without restarting the backend.
@@ -72,7 +92,7 @@ The same interface can switch to OpenAI GPT while continuing to use the shared t
 -   FAQ knowledge-base retrieval
 -   Resolved support-ticket retrieval
 -   Telecom PDF guide retrieval
--   Hugging Face sentence embeddings
+-   OpenAI `text-embedding-3-small` embeddings
 -   Chroma vector database
 -   LangChain RAG orchestration
 -   Runtime LLM selection between **Groq Qwen** and **OpenAI GPT**
@@ -94,7 +114,7 @@ The same interface can switch to OpenAI GPT while continuing to use the shared t
 
 ## Architecture
 
-``` mermaid
+```mermaid
 flowchart TD
     A[Customer] --> B[React/Vite Chat Interface]
     B --> C{Select LLM Provider}
@@ -108,7 +128,7 @@ flowchart TD
     F --> G
 
     G --> H[Shared Cached Retriever]
-    H --> I[Hugging Face Embedding Model]
+    H --> I[OpenAI Query Embeddings API]
     I --> J[Chroma Vector Database]
 
     J --> K[FAQ Collection]
@@ -283,19 +303,30 @@ Example citation:
 
 ## Embedding Model
 
-The project uses:
+The project uses OpenAI's **`text-embedding-3-small`** for document and query embeddings.
 
-``` text
-sentence-transformers/all-MiniLM-L6-v2
+Shared implementation: `backend/embeddings.py`
+
+```python
+from langchain_openai import OpenAIEmbeddings
+
+EMBED_MODEL = "text-embedding-3-small"
+
+def get_embeddings():
+    """Return the embedding model shared by ingestion and retrieval."""
+    return OpenAIEmbeddings(model=EMBED_MODEL)
 ```
 
-The same embedding model is used for knowledge-base ingestion and
-customer-query embedding, enabling semantic similarity search across the
-Chroma collections.
+The original implementation used the local Hugging Face model
+`sentence-transformers/all-MiniLM-L6-v2`. During the initial Render deployment,
+loading SentenceTransformers/PyTorch exceeded the free instance's 512 MB memory
+limit. Migrating to OpenAI API-based embeddings reduced backend memory usage and
+allowed the service to start successfully.
 
-The retriever is cached and shared by the Groq and OpenAI chains so the
-embedding/retrieval stack does not need to be initialized separately for
-each provider.
+The same embedding model is used for knowledge-base ingestion and customer-query
+retrieval. The retriever is cached and shared by both Groq and OpenAI LLM chains.
+**Both provider choices require an OpenAI API key for query embeddings**, even
+when Groq generates the final answer. API embedding requests may incur charges.
 
 ------------------------------------------------------------------------
 
@@ -684,6 +715,7 @@ telecom-rag-chatbot/
 │   │   ├── telecom_guide.pdf
 │   │   └── tickets.db
 │   ├── debug_retrieval.py
+│   ├── embeddings.py
 │   ├── eval_retrieval.py
 │   ├── ingest_faq.py
 │   ├── ingest_pdf.py
@@ -773,19 +805,19 @@ React interface sends the selected provider with each chat request.
 ### 4. Build the Vector Knowledge Base
 
 ``` bash
-python backend/ingest_faq.py
-python backend/ingest_tickets.py
-python backend/ingest_pdf.py
+uv run python -m backend.ingest_faq
+uv run python -m backend.ingest_tickets
+uv run python -m backend.ingest_pdf
 ```
 
-This generates the local Chroma vector database.
+Run these commands from the repository root with `OPENAI_API_KEY` configured. This generates the local Chroma vector database.
 
 ### 5. Start the FastAPI Backend
 
 From the project root:
 
 ``` bash
-uvicorn backend.api:app
+uv run uvicorn backend.api:app
 ```
 
 Backend:
@@ -818,6 +850,97 @@ http://localhost:5173
 
 ------------------------------------------------------------------------
 
+## Production Deployment (Render + Vercel)
+
+The frontend and backend are deployed independently:
+
+```text
+Browser → Vercel (React/Vite) → Render (FastAPI)
+                                ↓
+                    OpenAI query embeddings
+                                ↓
+                    Chroma FAQ / tickets / guide
+                                ↓
+                    Relevance check and fallback
+                                ↓
+                    Groq Qwen or OpenAI GPT
+                                ↓
+                    Streamed answer + source badge
+```
+
+### Render backend
+
+Connect the GitHub repository to a **Render Web Service**. Configure the
+repository root as the working directory so Python package imports resolve.
+
+**Build command** (installs dependencies and rebuilds Chroma collections):
+
+```bash
+uv sync --frozen && uv run python -m backend.ingest_faq && uv run python -m backend.ingest_tickets && uv run python -m backend.ingest_pdf
+```
+
+**Start command**:
+
+```bash
+uv run uvicorn backend.api:app --host 0.0.0.0 --port $PORT
+```
+
+Configure these Render environment variables:
+
+| Variable | Purpose |
+| --- | --- |
+| `OPENAI_API_KEY` | Query/document embeddings and OpenAI LLM calls |
+| `GROQ_API_KEY` | Groq-hosted LLM calls |
+| `LLM_PROVIDER` | Default LLM provider |
+| `FRONTEND_URL` | Allowed Vercel frontend origin for FastAPI CORS |
+
+Set `FRONTEND_URL=https://telecom-rag-chatbot.vercel.app`.
+Never commit secret API keys or place them in browser-side configuration.
+
+### Vercel frontend
+
+Import the same GitHub repository into Vercel as a **single frontend project**.
+Set **Root Directory** to `frontend` and **Framework Preset** to `Vite`.
+
+Configure this Vercel environment variable:
+
+```env
+VITE_API_BASE_URL=https://telecom-rag-chatbot-poqa.onrender.com
+```
+
+`frontend/src/App.jsx` reads `import.meta.env.VITE_API_BASE_URL` to choose the
+backend API. Only the public Render URL belongs in this variable; **do not**
+put OpenAI or Groq keys in any `VITE_` variable.
+
+### Production verification
+
+```bash
+curl https://telecom-rag-chatbot-poqa.onrender.com/health
+
+curl -N -X POST https://telecom-rag-chatbot-poqa.onrender.com/chat/stream \
+  -H "Content-Type: application/json" \
+  -d '{"question":"How can I activate international roaming?","provider":"groq"}'
+
+curl -N -X POST https://telecom-rag-chatbot-poqa.onrender.com/chat/stream \
+  -H "Content-Type: application/json" \
+  -d '{"question":"How can I activate international roaming?","provider":"openai"}'
+```
+
+The live Vercel frontend was tested with Groq and OpenAI, and both returned
+an international-roaming answer with **Source: FAQ 9**. The out-of-scope
+fallback was also tested. Render's free instance may take time to wake after
+inactivity.
+
+### Deployment lessons learned
+
+The first Render startup exceeded 512 MB because the local Hugging Face model
+loaded PyTorch. Switching to OpenAI embeddings fixed the memory problem.
+A subsequent build encountered `ModuleNotFoundError: No module named 'backend'`
+when ingestion scripts were run by file path. Running them as package modules
+(`python -m backend.ingest_faq`, etc.) fixed that import issue.
+
+------------------------------------------------------------------------
+
 ## Development Flow
 
 Use two terminals during local development.
@@ -826,7 +949,7 @@ Terminal 1:
 
 ``` bash
 cd /path/to/telecom-rag-chatbot
-uvicorn backend.api:app
+uv run uvicorn backend.api:app
 ```
 
 Terminal 2:
@@ -875,24 +998,23 @@ frontend/dist/
 
 ## Technology Stack
 
-  Layer                      Technology
-  -------------------------- -------------------------------------------------
-  Frontend                   React
-  Build Tool                 Vite
-  Frontend Linting           ESLint
-  Backend                    FastAPI
-  Streaming                  FastAPI `StreamingResponse` + Fetch Streams API
-  RAG Framework              LangChain
-  Vector Database            Chroma
-  Embeddings                 Hugging Face Sentence Transformers
-  Embedding Model            `sentence-transformers/all-MiniLM-L6-v2`
-  LLM Providers              Groq, OpenAI
-  LLM Models                 Qwen `qwen/qwen3.8-27b`, OpenAI `gpt-4.1-mini`
-  Ticket Database            SQLite
-  PDF Processing             PyPDF
-  Python Package Manager     uv
-  Frontend Package Manager   npm
-  Version Control            Git / GitHub
+| Layer | Technology |
+| --- | --- |
+| Frontend | React, Vite, CSS |
+| Frontend linting | ESLint |
+| Backend | FastAPI |
+| Streaming | FastAPI `StreamingResponse`, Fetch Streams API |
+| RAG orchestration | LangChain |
+| Vector database | Chroma |
+| Embeddings | OpenAI Embeddings API — `text-embedding-3-small` |
+| LLM providers | Groq Qwen (`qwen/qwen3.8-27b`), OpenAI (`gpt-4.1-mini`) |
+| Ticket data | SQLite |
+| PDF processing | PyPDF |
+| Python dependency management | uv |
+| Frontend package management | npm |
+| Frontend hosting | Vercel |
+| Backend hosting | Render |
+| Version control | Git and GitHub |
 
 ------------------------------------------------------------------------
 
@@ -917,6 +1039,8 @@ This project demonstrates practical implementation of:
 -   retrieval evaluation
 -   secure API-key management
 -   reproducible project organization
+-   cloud deployment and environment configuration across Render and Vercel
+-   memory-aware embedding architecture and debugging deployment failures
 
 ------------------------------------------------------------------------
 
@@ -931,7 +1055,7 @@ Potential improvements include:
 -   automated evaluation with larger datasets
 -   authentication and rate limiting
 -   Docker deployment
--   cloud deployment
+-   deployment monitoring and automated health checks
 -   observability and tracing
 -   automated tests and CI/CD
 
@@ -975,4 +1099,8 @@ Source badges                    ✅
 Error handling                   ✅
 Architecture documentation       ✅
 Portfolio screenshots            ✅
+Render backend deployment        ✅
+Vercel frontend deployment       ✅
+OpenAI embedding migration        ✅
+Live browser tests                ✅
 ```
